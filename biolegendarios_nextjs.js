@@ -42,9 +42,14 @@ export default function Home() {
 }
 
 // Archivo: pages/frases/[autor]/[slug].js
-import frases from '../../../data/frases.json';
+import fs from 'fs';
+import path from 'path';
 
 export async function getStaticPaths() {
+  const filePath = path.join(process.cwd(), 'data', 'frases.json');
+  const jsonData = fs.readFileSync(filePath, 'utf-8');
+  const frases = JSON.parse(jsonData);
+
   const paths = frases.map(f => ({
     params: { autor: f.autor, slug: f.slug }
   }));
@@ -53,6 +58,10 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+  const filePath = path.join(process.cwd(), 'data', 'frases.json');
+  const jsonData = fs.readFileSync(filePath, 'utf-8');
+  const frases = JSON.parse(jsonData);
+
   const fraseData = frases.find(
     f => f.autor === params.autor && f.slug === params.slug
   );
