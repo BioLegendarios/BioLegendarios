@@ -1,6 +1,6 @@
-// Proyecto base para BioLegendarios.LAT con Next.js + Vercel
+// Proyecto base mejorado para BioLegendarios.LAT con Next.js + Vercel + rutas dinámicas pre-renderizadas
 
-// Estructura de archivos inicial:
+// Estructura:
 // - pages/
 //     - index.js
 //     - frases/[autor]/[slug].js
@@ -42,15 +42,26 @@ export default function Home() {
 }
 
 // Archivo: pages/frases/[autor]/[slug].js
-import { useRouter } from 'next/router';
 import frases from '../../../data/frases.json';
 
-export default function Frase() {
-  const router = useRouter();
-  const { autor, slug } = router.query;
-  const fraseData = frases.find(f => f.autor === autor && f.slug === slug);
+export async function getStaticPaths() {
+  const paths = frases.map(f => ({
+    params: { autor: f.autor, slug: f.slug }
+  }));
 
-  if (!fraseData) return <p>Cargando...</p>;
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params }) {
+  const fraseData = frases.find(
+    f => f.autor === params.autor && f.slug === params.slug
+  );
+
+  return { props: { fraseData } };
+}
+
+export default function Frase({ fraseData }) {
+  if (!fraseData) return <p>Frase no encontrada</p>;
 
   return (
     <div>
